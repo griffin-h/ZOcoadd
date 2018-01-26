@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 from astropy.io import fits
 from argparse import ArgumentParser
@@ -35,7 +37,7 @@ if __name__ == '__main__':
     
     images = [fits.getdata(fn) for fn in args.images]
     headers = [fits.getheader(fn) for fn in args.images]
-    flux_zps = [hdr[args.zp_keyword] for hdr in headers]
+    flux_zps = [10**(-0.4*hdr[args.zp_keyword]) for hdr in headers]
     variances = [hdr[args.sky_keyword]**2 for hdr in headers]
     psfs = [fits.getdata(fn) for fn in args.psf]
     
