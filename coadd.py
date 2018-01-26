@@ -9,3 +9,14 @@ def stack_images(images, psfs, variances, flux_zps):
         stacked_fft += flux_zp / variance * psf_fft * image_fft
     stacked = np.fft.ifft2(stacked_fft)
     return stacked
+
+def normalize_stacked_image(stacked, psfs, variances, flux_zps, flux_units=False):
+    '''Normalize a coadded image to have units of standard deviations (default) or flux'''
+    norm_factor = np.zeros(stacked.shape)
+    for flux_zp, psf, variance in zip(flux_zps, variances, psfs):
+        norm_factor += flux_zp**2 / variance * psf @ psf
+    if flux_units:
+        stacked_norm = stacked / norm_factor
+    else:
+        stacked_norm = stacked / norm_factor**0.5
+    return stacked_norm
