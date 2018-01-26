@@ -8,17 +8,17 @@ def stack_images(images, psfs, variances, flux_zps):
     '''Coadd a list of images using the Zackay & Ofek (2017) algorithm'''
     stacked_fft = np.zeros(images[0].shape)
     for flux_zp, psf, variance, image in zip(flux_zps, psfs, variances, images):
-        psf_fft = np.fft.fft2(psf)
-        image_fft = np.fft.fft2(image)
+        psf_fft = np.real(np.fft.fft2(psf))
+        image_fft = np.real(np.fft.fft2(image))
         stacked_fft += flux_zp / variance * psf_fft * image_fft
-    stacked = np.fft.ifft2(stacked_fft)
+    stacked = np.real(np.fft.ifft2(stacked_fft))
     return stacked
 
 def normalize_stacked_image(stacked, psfs, variances, flux_zps, flux_units=False):
     '''Normalize a coadded image to have units of standard deviations (default) or flux'''
     norm_factor = np.zeros(stacked.shape)
     for flux_zp, psf, variance in zip(flux_zps, variances, psfs):
-        norm_factor += flux_zp**2 / variance * psf @ psf
+        norm_factor += flux_zp**2 / variance * np.dot(psf, psf)
     if flux_units:
         stacked_norm = stacked / norm_factor
     else:
